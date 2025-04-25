@@ -121,21 +121,8 @@ def inserirNota(params: dict):
 
 
 #update - put 
-@app.put("/atualizar-endereco")
-def atualizarEndereco(endereco: dict):
-    with engine.begin() as conn:
-        sql = text("""
-            UPDATE tb_enderecos
-            SET endereco = :endereco,
-                cidade = :cidade,
-                estado = :estado
-            WHERE cep = :cep
-        """)
-        result = conn.execute(sql, endereco)
-    return {"message": "endereco atualizado com sucesso"}
-
-@app.put("/atualizar-aluno")
-def atualizarAluno(aluno: dict):
+@app.put("/atualizar-aluno/{id}")
+def atualizar_aluno(id: int, aluno: dict):
     with engine.begin() as conn:
         sql = text("""
             UPDATE tb_alunos
@@ -145,11 +132,13 @@ def atualizarAluno(aluno: dict):
                 carro_id = :carro_id
             WHERE id = :id
         """)
+        aluno["id"] = id
         conn.execute(sql, aluno)
     return {"message": "aluno atualizado com sucesso"}
 
-@app.put("/atualizar-carro")
-def atualizarCarro(carro: dict):
+
+@app.put("/atualizar-carro/{id}")
+def atualizar_carro(id: int, carro: dict):
     with engine.begin() as conn:
         sql = text("""
             UPDATE tb_carros
@@ -158,11 +147,12 @@ def atualizarCarro(carro: dict):
                 especificacao = :especificacao
             WHERE id = :id
         """)
+        carro["id"] = id
         conn.execute(sql, carro)
     return {"message": "carro atualizado com sucesso"}
 
-@app.put("/atualizar-disciplina")
-def atualizarDisciplina(disciplina: dict):
+@app.put("/atualizar-disciplina/{id}")
+def atualizar_disciplina(id: int, disciplina: dict):
     with engine.begin() as conn:
         sql = text("""
             UPDATE tb_disciplinas
@@ -171,52 +161,44 @@ def atualizarDisciplina(disciplina: dict):
                 semestre = :semestre
             WHERE id = :id
         """)
+        disciplina["id"] = id
         conn.execute(sql, disciplina)
     return {"message": "disciplina atualizada com sucesso"}
-
-@app.put("/atualizar-nota")
-def atualizarNota(nota: dict):
-    with engine.begin() as conn:
-        sql = text("""
-            UPDATE tb_notas
-            SET nota = :nota
-            WHERE aluno_id = :aluno_id AND disciplina_id = :disciplina_id
-        """)
-        conn.execute(sql, nota)
-    return {"message": "nota atualizada com sucesso"}
 
 
 #delete 
 #http://127.0.0.1:8000/deletar-endereco?cep=01001-009
-@app.delete("/deletar-endereco")
-def deletarEndereco(cep: str):
-    with engine.begin() as conn:
-        sql = text("""
-                   DELETE FROM tb_enderecos WHERE cep = :cep
-                   """)
-        result = conn.execute(sql, {"cep": cep})
-    return {"message": "endereco deletado com sucesso"}
-
-@app.delete("/deletar-aluno")
-def deletarAluno(id: int):
+@app.delete("/deletar-aluno/{id}")
+def deletar_aluno(id: int):
     with engine.begin() as conn:
         sql = text("DELETE FROM tb_alunos WHERE id = :id")
         conn.execute(sql, {"id": id})
     return {"message": "aluno deletado com sucesso"}
 
-@app.delete("/deletar-carro")
-def deletarCarro(id: int):
+@app.delete("/deletar-endereco/{cep}")
+def deletar_endereco(cep: str):
+    with engine.begin() as conn:
+        sql = text("DELETE FROM tb_enderecos WHERE cep = :cep")
+        conn.execute(sql, {"cep": cep})
+    return {"message": "endereco deletado com sucesso"}
+
+@app.delete("/deletar-carro/{id}")
+def deletar_carro(id: int):
     with engine.begin() as conn:
         sql = text("DELETE FROM tb_carros WHERE id = :id")
         conn.execute(sql, {"id": id})
     return {"message": "carro deletado com sucesso"}
 
-@app.delete("/deletar-disciplina")
-def deletarDisciplina(id: int):
+@app.delete("/deletar-disciplina/{id}")
+def deletar_disciplina(id: int):
     with engine.begin() as conn:
         sql = text("DELETE FROM tb_disciplinas WHERE id = :id")
         conn.execute(sql, {"id": id})
     return {"message": "disciplina deletada com sucesso"}
 
-        
-
+@app.delete("/deletar-nota/{aluno_id}/{disciplina_id}")
+def deletar_nota(aluno_id: int, disciplina_id: int):
+    with engine.begin() as conn:
+        sql = text("DELETE FROM tb_notas WHERE aluno_id = :aluno_id AND disciplina_id = :disciplina_id")
+        conn.execute(sql, {"aluno_id": aluno_id, "disciplina_id": disciplina_id})
+    return {"message": "nota deletada com sucesso"}
